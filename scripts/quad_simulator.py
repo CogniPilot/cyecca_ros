@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python_cyecca
 import sys
 import time
 import numpy as np
@@ -12,6 +12,9 @@ import rclpy.clock
 from rosgraph_msgs.msg import Clock
 from sensor_msgs.msg import Imu, NavSatFix, MagneticField
 from actuator_msgs.msg import Actuators
+
+import cyecca
+import casadi as ca
 
 
 class QuadSimulator(Node):
@@ -140,7 +143,7 @@ def main(args):
     try:
         rclpy.spin(simulator)
     except KeyboardInterrupt as e:
-        rclpy.shutdown()
+        pass
 
 if __name__ == "__main__":
     main(args=sys.argv[1:])

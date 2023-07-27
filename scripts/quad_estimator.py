@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python_cyecca
 import sys
 import time
 import numpy as np
@@ -13,6 +13,9 @@ from rosgraph_msgs.msg import Clock
 from sensor_msgs.msg import Imu, NavSatFix, MagneticField
 from actuator_msgs.msg import Actuators
 from nav_msgs.msg import Odometry
+
+import cyecca
+import casadi as ca
 
 
 class QuadEstimator(Node):
@@ -57,7 +60,7 @@ def main(args):
     try:
         rclpy.spin(estimator)
     except KeyboardInterrupt as e:
-        rclpy.shutdown()
+        pass
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python_cyecca
 import sys
 import numpy as np
 
@@ -8,6 +8,9 @@ from rclpy.parameter import Parameter
 
 from actuator_msgs.msg import Actuators
 from nav_msgs.msg import Odometry
+
+import casadi as ca
+import cyecca
 
 
 class QuadController(Node):
@@ -48,7 +51,7 @@ def main(args):
     try:
         rclpy.spin(controller)
     except KeyboardInterrupt as e:
-        rclpy.shutdown()
+        pass
 
 
 if __name__ == "__main__":
