@@ -7,6 +7,7 @@ import rclpy
 from rclpy.node import Node
 from rclpy.parameter import Parameter
 from rclpy.time import Time
+from rclpy.lifecycle import LifecycleNode
 import rclpy.clock
 
 from rosgraph_msgs.msg import Clock
@@ -17,7 +18,7 @@ import cyecca
 import casadi as ca
 
 
-class QuadSimulator(Node):
+class QuadSimulator(LifecycleNode):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -137,13 +138,15 @@ class QuadSimulator(Node):
             self.motors[i] = msg.velocity[i]
 
 
-def main(args):
-    rclpy.init(args=args)
-    simulator = QuadSimulator(node_name="quad_simulator")
+def main(args=None):
     try:
+        rclpy.init(args=args)
+        simulator = QuadSimulator(node_name="quad_simulator")
         rclpy.spin(simulator)
-    except KeyboardInterrupt as e:
+    except KeyboardInterrupt:
         pass
+    simulator.destroy_node()
+    rclpy.try_shutdown()
 
 if __name__ == "__main__":
-    main(args=sys.argv[1:])
+    main()

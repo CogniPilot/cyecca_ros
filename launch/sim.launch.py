@@ -46,7 +46,6 @@ def generate_launch_description():
        ],
        remappings=[
        ],
-       on_exit=launch.actions.Shutdown()
     )
 
     node_estimator = Node(
@@ -59,7 +58,6 @@ def generate_launch_description():
        ],
        remappings=[
        ],
-       on_exit=launch.actions.Shutdown()
     )
 
     node_controller = Node(
@@ -72,7 +70,6 @@ def generate_launch_description():
        ],
        remappings=[
        ],
-       on_exit=launch.actions.Shutdown()
     )
 
     return LaunchDescription([

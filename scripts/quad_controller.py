@@ -5,6 +5,7 @@ import numpy as np
 import rclpy
 from rclpy.node import Node
 from rclpy.parameter import Parameter
+from rclpy.lifecycle import LifecycleNode
 
 from actuator_msgs.msg import Actuators
 from nav_msgs.msg import Odometry
@@ -13,7 +14,7 @@ import casadi as ca
 import cyecca
 
 
-class QuadController(Node):
+class QuadController(LifecycleNode):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -44,15 +45,16 @@ class QuadController(Node):
         self.pub_actuators.publish(self.msg_actuators)
 
 
-def main(args):
+def main(args=None):
     rclpy.init(args=args)
     controller = QuadController(node_name="quad_controller")
-
     try:
         rclpy.spin(controller)
-    except KeyboardInterrupt as e:
+    except KeyboardInterrupt:
         pass
+    controller.destroy_node()
+    rclpy.try_shutdown()
 
 
 if __name__ == "__main__":
-    main(args=sys.argv[1:])
+    main()

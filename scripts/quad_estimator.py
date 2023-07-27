@@ -8,6 +8,7 @@ from rclpy.node import Node
 from rclpy.parameter import Parameter
 from rclpy.time import Time
 import rclpy.clock
+from rclpy.lifecycle import LifecycleNode
 
 from rosgraph_msgs.msg import Clock
 from sensor_msgs.msg import Imu, NavSatFix, MagneticField
@@ -18,7 +19,7 @@ import cyecca
 import casadi as ca
 
 
-class QuadEstimator(Node):
+class QuadEstimator(LifecycleNode):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -53,15 +54,16 @@ class QuadEstimator(Node):
         self.pub_odom.publish(self.msg_odom)
 
 
-def main(args):
-    rclpy.init(args=args)
-    estimator = QuadEstimator(node_name="quad_estimator")
-
+def main(args=None):
     try:
+        rclpy.init(args=args)
+        estimator = QuadEstimator(node_name="quad_estimator")
         rclpy.spin(estimator)
-    except KeyboardInterrupt as e:
+    except KeyboardInterrupt:
         pass
+    estimator.destroy_node()
+    rclpy.try_shutdown()
 
 
 if __name__ == "__main__":
-    main(args=sys.argv[1:])
+    main()
