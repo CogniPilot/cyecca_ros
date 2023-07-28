@@ -7,9 +7,11 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(actuator_msgs REQUIRED)
+find_package(rosgraph_msgs REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -22,6 +24,11 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+add_executable(quad_simulator src/quad_simulator.cpp)
+ament_target_dependencies(quad_simulator rclcpp rclcpp_lifecycle sensor_msgs actuator_msgs rosgraph_msgs)
+
+install(TARGETS quad_simulator DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 

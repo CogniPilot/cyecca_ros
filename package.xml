@@ -9,6 +9,13 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>rclcpp</depend>
+  <depend>rclcpp_lifecycle</depend>
+  <depend>sensor_msgs</depend>
+  <depend>actuator_msgs</depend>
+  <depend>rosgraph_msgs</depend>
+  <depend>lifecycle_node</depend>
+
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
