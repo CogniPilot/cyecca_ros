@@ -9,6 +9,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
+find_package(nav_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(actuator_msgs REQUIRED)
 find_package(rosgraph_msgs REQUIRED)
@@ -28,7 +29,17 @@ endif()
 add_executable(quad_simulator src/quad_simulator.cpp)
 ament_target_dependencies(quad_simulator rclcpp rclcpp_lifecycle sensor_msgs actuator_msgs rosgraph_msgs)
 
-install(TARGETS quad_simulator DESTINATION lib/${PROJECT_NAME})
+add_executable(quad_estimator src/quad_estimator.cpp)
+ament_target_dependencies(quad_estimator rclcpp rclcpp_lifecycle sensor_msgs nav_msgs)
+
+add_executable(quad_controller src/quad_controller.cpp)
+ament_target_dependencies(quad_controller rclcpp rclcpp_lifecycle actuator_msgs nav_msgs)
+
+install(TARGETS
+  quad_simulator
+  quad_estimator
+  quad_controller
+  DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 

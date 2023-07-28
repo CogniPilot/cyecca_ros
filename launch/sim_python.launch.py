@@ -12,11 +12,17 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     # launch substiutions
-    use_sim_time = True
+    use_sim_time = LaunchConfiguration('use_sim_time')
     logger = LaunchConfiguration('log_level')
     speed = LaunchConfiguration('speed')
 
     # launch arguments
+    arg_use_sim_time = DeclareLaunchArgument(
+        'use_sim_time',
+        default_value=['true'],
+        description='use simulation time'
+    )
+
     arg_log_level = DeclareLaunchArgument(
         'log_level',
         default_value=['warn'],
@@ -25,14 +31,14 @@ def generate_launch_description():
 
     arg_speed = DeclareLaunchArgument(
         'speed',
-        default_value=['1.0'],
+        default_value=['1'],
         description='Simulation Speed Factor'
     )
 
     node_simulator = Node(
        package='cyecca_ros',
        output='screen',
-       executable='quad_simulator',
+       executable='quad_simulator.py',
        arguments=['--ros-args', '--log-level', logger],
        parameters=[
          {'use_sim_time': use_sim_time},
@@ -45,7 +51,7 @@ def generate_launch_description():
     node_estimator = Node(
        package='cyecca_ros',
        output='screen',
-       executable='quad_estimator',
+       executable='quad_estimator.py',
        arguments=['--ros-args', '--log-level', logger],
        parameters=[
          {'use_sim_time': use_sim_time},
@@ -57,7 +63,7 @@ def generate_launch_description():
     node_controller = Node(
        package='cyecca_ros',
        output='screen',
-       executable='quad_controller',
+       executable='quad_controller.py',
        arguments=['--ros-args', '--log-level', logger],
        parameters=[
          {'use_sim_time': use_sim_time},
@@ -67,6 +73,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        arg_use_sim_time,
         arg_log_level,
         arg_speed,
         node_estimator,

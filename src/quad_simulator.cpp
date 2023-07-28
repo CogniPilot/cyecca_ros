@@ -1,18 +1,7 @@
 #include <chrono>
 
 #include <actuator_msgs/msg/actuators.hpp>
-#include <memory>
-#include <rclcpp/clock.hpp>
-#include <rclcpp/create_timer.hpp>
-#include <rclcpp/executor.hpp>
-#include <rclcpp/executors.hpp>
-#include <rclcpp/executors/multi_threaded_executor.hpp>
-#include <rclcpp/executors/single_threaded_executor.hpp>
-#include <rclcpp/publisher_base.hpp>
-#include <rclcpp/rate.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <rclcpp/subscription_base.hpp>
-#include <rclcpp/timer.hpp>
 #include <rclcpp_lifecycle/lifecycle_node.hpp>
 #include <rosgraph_msgs/msg/clock.hpp>
 #include <sensor_msgs/msg/imu.hpp>
@@ -36,14 +25,13 @@ private:
 
     // clock
     double m_dt;
-    int m_speed;
+    double m_speed;
     int m_i { 0 };
     rclcpp::TimerBase::SharedPtr m_timer_clock;
     rclcpp::Publisher<rosgraph_msgs::msg::Clock>::SharedPtr m_pub_clock;
     rclcpp::Time m_system_time_prev;
     rosgraph_msgs::msg::Clock m_msg_clock;
     rclcpp::Clock::SharedPtr m_system_clock;
-    rclcpp::Clock::SharedPtr m_sim_clock;
 
     // imu
     rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr m_pub_imu;
@@ -73,7 +61,6 @@ QuadSimulator::QuadSimulator()
 {
     // initialize system clock
     m_system_clock = std::make_shared<rclcpp::Clock>(RCL_SYSTEM_TIME);
-    m_sim_clock = std::make_shared<rclcpp::Clock>(RCL_ROS_TIME);
 
     // parameters
     this->declare_parameter("dt", 0.005);
@@ -87,10 +74,8 @@ QuadSimulator::QuadSimulator()
     m_pub_clock = this->create_publisher<rosgraph_msgs::msg::Clock>("clock", 10);
     m_dt = this->get_parameter("dt").as_double();
     m_speed = this->get_parameter("speed").as_double();
-    int64_t nanos_sleep = 0;
-    if (m_speed > 0) {
-        nanos_sleep = 1e9 * m_dt / m_speed;
-    }
+    int64_t nanos_sleep = 1e9 * m_dt / m_speed;
+    RCLCPP_INFO(this->get_logger(), "requested sim speed: %10.4f Hz", m_speed);
     RCLCPP_INFO(this->get_logger(), "sim sleep period: %ld ns", nanos_sleep);
     m_timer_clock = rclcpp::create_timer(
         this,
@@ -104,7 +89,7 @@ QuadSimulator::QuadSimulator()
     m_dt_imu = this->get_parameter("dt_imu").as_double();
     m_timer_imu = rclcpp::create_timer(
         this,
-        m_sim_clock,
+        this->get_clock(),
         std::chrono::nanoseconds(int64_t(1e9 * m_dt_imu)),
         std::bind(&QuadSimulator::m_timer_imu_callback, this));
     m_msg_imu.header.frame_id = "base_link";
@@ -124,7 +109,7 @@ QuadSimulator::QuadSimulator()
     m_dt_gnss = this->get_parameter("dt_gnss").as_double();
     m_timer_gnss = rclcpp::create_timer(
         this,
-        m_sim_clock,
+        this->get_clock(),
         std::chrono::nanoseconds(int64_t(1e9 * m_dt_gnss)),
         std::bind(&QuadSimulator::m_timer_gnss_callback, this));
     m_msg_gnss.header.frame_id = "base_link";
@@ -140,7 +125,7 @@ QuadSimulator::QuadSimulator()
     m_dt_mag = this->get_parameter("dt_mag").as_double();
     m_timer_mag = rclcpp::create_timer(
         this,
-        m_sim_clock,
+        this->get_clock(),
         std::chrono::nanoseconds(int64_t(1e9 * m_dt_mag)),
         std::bind(&QuadSimulator::m_timer_mag_callback, this));
     m_msg_mag.header.frame_id = "base_link";
@@ -169,7 +154,7 @@ void QuadSimulator::m_timer_clock_callback()
     m_system_time_prev = now;
     RCLCPP_INFO_THROTTLE(
         this->get_logger(), *m_system_clock,
-        1000, "sim rate:%10.3f", sim_rate);
+        1000, "sim speed:%10.3f Hz", sim_rate);
 
     // increment time for next loop
     m_i += 1;
